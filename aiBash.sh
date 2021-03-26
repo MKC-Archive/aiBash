@@ -1,5 +1,4 @@
 #!/bin/sh
-# Auto Installer Bash Script
 
 #Включаем логгирование скрипта
 LOG_PIPE=log_ai.pipe
@@ -11,252 +10,340 @@ tee < ${LOG_PIPE} ${LOG_FILE} &
 exec  > ${LOG_PIPE}
 exec  2> ${LOG_PIPE}
 
-__START__() {
-	printf "\033[1;32m$@\033[0m"
-}
-Text_INFO()
-{
-	__START__ "$@\n"
-}
-Text_n()
-{
-	Text_INFO "- - - $@"
-}
-Text_SEPARATOR()
-{
-	Text_INFO "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - "
-}
-Text_TITLE()
-{
-	Text_SEPARATOR
-	Text_INFO "- - - $@"
-	Text_SEPARATOR
-}
-
+# Цвета
 red=$(tput setaf 1)
 green=$(tput setaf 2)
 yellow=$(tput setaf 3)
 blue=$(tput setaf 4)
+phpVer="7.4"
 
-setup_server()
-{
+MKC_txt() {
+	printf "\033[1;32m$@\033[0m\n"
+}
+
+install_complected() {
   clear
+	MKC_txt "${red}Пожалуйста, оцените работу скрипта! ${yellow}https://clck.ru/N9mux"
+	MKC_txt
+		MKC_txt "${green} t.me/${red}MiKillCrafter"
+	  MKC_txt "${green} ${blue}https://MiKillCrafter.ru/aiBash"
+	  MKC_txt
+		MKC_txt "${red}Сайт установлен по этому пути:"
+    MKC_txt "${blue}$INSTALL_DIR"
+      MKC_txt
+        MKC_txt "${yellow}http://$DOMAIN/${red}phpmyadmin"
+      MKC_txt
+		MKC_txt "${red}Логин${green}: ${yellow}root"
+		MKC_txt "${red}Пароль${green}: ${yellow}$MySQL_Password"
+		MKC_txt
+		MKC_txt
+	MKC_txt
+	MKC_txt "Всё готово [All done]"
+	  MKC_txt "1 – Установить бесплатный SSL [Install free SSL]"
+	  MKC_txt "2 – Меню [Menu]"
+	  MKC_txt "0 – Выход [Exit]"
+	MKC_txt
+	read -p "Введи 0 чтобы завершить: " case
+	case $case in
+	  1) installCertificate;;
+	  2) menu;;
+	  0) exit;;
+	esac
+}
 
-	Text_TITLE "• Обновляю пакеты репозиториев •"
-	  apt -y update
-	Text_TITLE "• Завершаю обновление репозиториев •"
-
-	Text_TITLE "• Выполняю: apt autoremove -y•"
-	  apt autoremove -y
-	Text_TITLE "• Завершаю •"
-
-	Text_TITLE "• Выполняю: apt clean •"
-	  apt -y clean
-	Text_TITLE "• Завершаю •"
-
-  Text_TITLE "• Выполняю: apt -y install --fix-missing •"
-	  apt -y install --fix-missing
-	Text_TITLE "• Завершаю •"
-
-	Text_TITLE "• Подготовка к установке: •"
-	Text_INFO "     "
-
-  sleep 5
-
-  Text_TITLE "• >> Устанавливаю важные пакеты... •"
-  Text_SEPARATOR
-
-    Text_INFO "${blue}[INSTALL]:${green} sudo"
-	    apt-get install -y sudo
-	  Text_INFO "${blue}[COMPLECTED]:${green} sudo"
-
-    Text_INFO
-
-    Text_INFO "${blue}[INSTALL]:${green} apt"
-	    apt-get install -y apt
-	  Text_INFO "${blue}[COMPLECTED]:${green} apt"
-
-    Text_INFO
-
-    Text_INFO "${blue}[INSTALL]:${green} wget"
-	    apt-get install -y wget
-	  Text_INFO "${blue}[COMPLECTED]:${green} wget"
-
-    Text_INFO
-
-    Text_INFO "${blue}[INSTALL]:${green} apt-utils"
-	    apt-get install -y apt-utils
-	  Text_INFO "${blue}[COMPLECTED]:${green} apt-utils"
-
-    Text_INFO
-
-    Text_INFO "${blue}[INSTALL]:${green} software-properties-common"
-	    apt-get install -y software-properties-common
-	  Text_INFO "${blue}[COMPLECTED]:${green} software-properties-common"
-
-    Text_INFO
-
-  sleep 5
-
-    Text_INFO
-
-    Text_INFO "${blue}[INSTALL]:${green} pwgen"
-	    apt-get install -y pwgen
-	  Text_INFO "${blue}[COMPLECTED]:${green} pwgen"
-
-    Text_INFO
-
-    Text_INFO "${blue}[INSTALL]:${green} dialog"
-	    apt-get install -y dialog
-	  Text_INFO "${blue}[COMPLECTED]:${green} dialog"
-
-    Text_INFO
-
-    Text_INFO "${red}[INSTALL SKIPPED]:${green} python-software-properties"
-	    #apt-get install -y python-software-properties
-	  Text_INFO "${red}[INSTALL SKIPPED]:${green} python-software-properties"
-
-	Text_SEPARATOR
-	Text_TITLE "• Установка важных пакетов завершена. Продолжаем... •"
-	sleep 5
-
-	Text_INFO "     "
-
-	Text_TITLE "${green}• ${red}Генерируем временные пароли для PHPMyAdmin ${green}•"
-    MYPASS=$(pwgen -cns -1 20)
-	  MYPASS2=$(pwgen -cns -1 20)
-	Text_TITLE "• Пароли сгенерированы! •"
-
-	Text_INFO "     "
-
-  Text_TITLE "${green}• Записываю пароли в ${red}MySQL ${green}конфиг •"
-	    echo mysql-server mysql-server/root_password select "$MYPASS" | debconf-set-selections
-	    echo mysql-server mysql-server/root_password_again select "$MYPASS" | debconf-set-selections
-	Text_TITLE "• ${green}Пароли записаны •"
-
-	Text_INFO "     "
-
-  Text_TITLE "• Устанавливаю репозитории phpmyadmin •"
-    sudo add-apt-repository -y ppa:phpmyadmin/ppa
-  Text_TITLE "• Репозитории добавлены •"
-
+setup_server() {
+  clear
+    MKC_txt "Подготовка к установке:"
   sleep 3
 
-  Text_INFO "     "
+  MKC_txt
 
-	Text_TITLE "• Устанавливаю обновления •"
-	  sudo apt-get update -y
-	  sudo apt-get upgrade -y
-	Text_TITLE "• Завершаю обновление •"
-	clear
+	MKC_txt ">> /etc/init.d/apache2 stop"
+	/etc/init.d/apache2 stop
 
-	Text_INFO "     "
+	MKC_txt
 
-  Text_TITLE "• Устанавливаю пакет php7.4-cli •"
-  	sudo apt-get install -y php7.4-cli
-  Text_TITLE "• Установка php7.4-cli завершена •"
+  MKC_txt ">> service apache2 stop"
+	service apache2 stop
+
+	MKC_txt
+
+  MKC_txt ">> systemctl stop apache2"
+	systemctl stop apache2
+
+	MKC_txt
+
+  MKC_txt ">> a2dismod php$phpVer"
+	a2dismod php$phpVer
+
+	MKC_txt
+
+  MKC_txt ">> service php$phpVer stop"
+	service php$phpVer stop
+
+  MKC_txt
+
   sleep 5
-  clear
+    check_os_update
+  sleep 3
 
-  Text_INFO "     "
+  MKC_txt
 
-  Text_TITLE "• Устанавливаю Python •"
-    Text_INFO "${blue}[INSTALL]:${green} python-pip"
-	    apt-get install -y python-pip
-	  Text_INFO "${blue}[COMPLECTED]:${green} python-pip"
+	MKC_txt "Выполняю: apt autoremove -y"
+	  apt-get autoremove -y
+	MKC_txt "Выполнено"
 
-    Text_INFO
+	MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} python"
-	    apt-get install -y python
-	  Text_INFO "${blue}[COMPLECTED]:${green} python"
+	MKC_txt "Выполняю: apt clean"
+	  apt-get -y clean
+	MKC_txt "Выполнено"
 
-    Text_INFO
+	MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} python3"
-	    apt-get install -y python3
-	  Text_INFO "${blue}[COMPLECTED]:${green} python3"
-	  Text_TITLE "• Установка Python завершена •"
-	  sleep 2
+	MKC_txt "Выполняю: apt -y install --fix-missing"
+	  apt-get -y install --fix-missing
+	MKC_txt "Выполнено"
+
+  sleep 5
 	  clear
+	  MKC_txt ">> Устанавливаю важные пакеты..."
+	sleep 3
 
-  Text_TITLE "• Устанавливаю приложения •"
+	MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} apache2"
-	    apt-get install -y apache2
-	  Text_INFO "${blue}[COMPLECTED]:${green} apache2"
+	MKC_txt "${blue}[INSTALL]:${green} sudo"
+	    apt-get install -y sudo
+	MKC_txt "${blue}[COMPLECTED]:${green} sudo"
 
-    Text_INFO
+  MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} php-cli"
-	    apt-get install -y php-cli
-	  Text_INFO "${blue}[COMPLECTED]:${green} php-cli"
+  MKC_txt "${blue}[INSTALL]:${green} apt"
+	    apt-get install -y apt
+	MKC_txt "${blue}[COMPLECTED]:${green} apt"
 
-    Text_INFO
+  MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} libapache2-mod-php"
-	    apt-get install -y php-dev
-	  Text_INFO "${blue}[COMPLECTED]:${green} libapache2-mod-php"
+  MKC_txt "${blue}[INSTALL]:${green} wget"
+	    apt-get install -y wget
+	MKC_txt "${blue}[COMPLECTED]:${green} wget"
 
-    Text_INFO
+  MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} unzip"
-	    apt-get install -y unzip
-	  Text_INFO "${blue}[COMPLECTED]:${green} unzip"
+  MKC_txt "${blue}[INSTALL]:${green} apt-utils"
+	    apt-get install -y apt-utils
+  MKC_txt "${blue}[COMPLECTED]:${green} apt-utils"
 
-    Text_INFO
+  MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} mysql-server"
-	    apt-get install -y mysql-server
-	  Text_INFO "${blue}[COMPLECTED]:${green} mysql-server"
+  MKC_txt "${blue}[INSTALL]:${green} software-properties-common"
+	    apt-get install -y software-properties-common
+	MKC_txt "${blue}[COMPLECTED]:${green} software-properties-common"
 
-    Text_INFO
+  MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} mysql-client"
-	    apt-get install -y mysql-client
-	  Text_INFO "${blue}[COMPLECTED]:${green} mysql-client"
+  MKC_txt "${blue}[INSTALL]:${green} pwgen"
+	    apt-get install -y pwgen
+	MKC_txt "${blue}[COMPLECTED]:${green} pwgen"
 
-    Text_INFO
+  MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} php-json"
-	    apt-get install -y php-json
-	  Text_INFO "${blue}[COMPLECTED]:${green} php-json"
+  MKC_txt "${blue}[INSTALL]:${green} dialog"
+	    apt-get install -y dialog
+	MKC_txt "${blue}[COMPLECTED]:${green} dialog"
 
-    Text_INFO
+  MKC_txt
 
-    Text_INFO "${blue}[INSTALL]:${green} php-curl"
-	    apt-get install -y php-curl
-	  Text_INFO "${blue}[COMPLECTED]:${green} php-curl"
+  MKC_txt "${blue}[INSTALL]:${green} ssh"
+		sudo apt-get install -y ssh
+		sleep 2
+	MKC_txt "${blue}[COMPLECTED]:${green} ssh"
 
-	Text_TITLE "• Приложения установлены •"
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} screen"
+		sudo apt-get install -y screen
+		sleep 2
+	MKC_txt "${blue}[COMPLECTED]:${green} screen"
+
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} mc"
+		sudo apt-get install -y mc
+		sleep 2
+	MKC_txt "${blue}[COMPLECTED]:${green} mc"
+
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} cpulimit"
+		sudo apt-get install -y cpulimit
+		sleep 2
+	MKC_txt "${blue}[COMPLECTED]:${green} cpulimit"
+
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} zip"
+		sudo apt-get install -y zip
+		sleep 2
+	MKC_txt "${blue}[COMPLECTED]:${green} zip"
+
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} unzip"
+		sudo apt-get install -y unzip
+		sleep 2
+	MKC_txt "${blue}[COMPLECTED]:${green} unzip"
+
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} htop"
+		sudo apt-get install -y htop
+		sleep 2
+	MKC_txt "${blue}[COMPLECTED]:${green} htop"
+
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} net-tools"
+		sudo apt-get install -y net-tools
+		sleep 2
+	MKC_txt "${blue}[COMPLECTED]:${green} net-tools"
+
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} python-pip"
+	  apt-get install -y python-pip
+	MKC_txt "${blue}[COMPLECTED]:${green} python-pip"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} python"
+	  apt-get install -y python
+	MKC_txt "${blue}[COMPLECTED]:${green} python"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} python3"
+	  apt-get install -y python3
+	MKC_txt "${blue}[COMPLECTED]:${green} python3"
+
+	MKC_txt
+
+  sleep 3
+    clear
+	  MKC_txt "${green} >> Команда: ${red}Установка важных пакетов${green} завершена. ${yellow}Продолжаем..."
 	sleep 5
-	clear
 
-	Text_TITLE "${green}• Вношу изменения в ${red}PHPMyAdmin ${green}•"
+	MKC_txt
+
+	MKC_txt "${red}Генерируем временные пароли для MySQL ${green}"
+    MySQL_Password=$(pwgen -cns -1 20)
+	MKC_txt "Пароли сгенерированы!"
+
+	MKC_txt
+
+	MKC_txt "${green}Записываю пароли в ${red}MySQL Server"
+	    echo mysql-server mysql-server/root_password select "$MySQL_Password" | debconf-set-selections
+	    echo mysql-server mysql-server/root_password_again select "$MySQL_Password" | debconf-set-selections
+	MKC_txt "${green}Пароли записаны"
+
+	MKC_txt
+
+	MKC_txt "Устанавливаю репозитории phpmyadmin"
+    sudo add-apt-repository -y ppa:phpmyadmin/ppa
+  MKC_txt "Репозитории добавлены"
+
+  sleep 3
+  MKC_txt
+
+  check_os_update
+
+  clear
+    MKC_txt "Устанавливаю серверные приложения"
+  sleep 3
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} php$phpVer-cli"
+	  sudo apt-get install -y php$phpVer-cli
+	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-cli"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} php$phpVer-mbstring"
+	  sudo apt-get install -y php$phpVer-mbstring
+	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-mbstring"
+
+	MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} apache2"
+	  apt-get install -y apache2
+	MKC_txt "${blue}[COMPLECTED]:${green} apache2"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} php$phpVer-mbstring"
+	  apt-get install -y php$phpVer-mbstring
+	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-mbstring"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} libapache2-mod-php$phpVer"
+	  apt-get install -y libapache2-mod-php$phpVer
+	MKC_txt "${blue}[COMPLECTED]:${green} libapache2-mod-php$phpVer"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} mysql-server"
+	  apt-get install -y mysql-server
+	MKC_txt "${blue}[COMPLECTED]:${green} mysql-server"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} mysql-client"
+	  apt-get install -y mysql-client
+	MKC_txt "${blue}[COMPLECTED]:${green} mysql-client"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} php$phpVer-json"
+	  apt-get install -y php$phpVer-json
+	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-json"
+
+  MKC_txt
+
+  MKC_txt "${blue}[INSTALL]:${green} php$phpVer-curl"
+	  apt-get install -y php$phpVer-curl
+	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-curl"
+
+	MKC_txt
+
+	MKC_txt "Приложения установлены "
+	sleep 5
+
+	MKC_txt "${green}Настройка: PHPMyAdmin "
 	  echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections
 	  echo "phpmyadmin phpmyadmin/mysql/admin-user string root" | debconf-set-selections
-	  echo "phpmyadmin phpmyadmin/mysql/admin-pass password $MYPASS" | debconf-set-selections
-	  echo "phpmyadmin phpmyadmin/mysql/app-pass password $MYPASS" |debconf-set-selections
-	  echo "phpmyadmin phpmyadmin/app-password-confirm password $MYPASS" | debconf-set-selections
+	  echo "phpmyadmin phpmyadmin/mysql/admin-pass password $MySQL_Password" | debconf-set-selections
+	  echo "phpmyadmin phpmyadmin/mysql/app-pass password $MySQL_Password" |debconf-set-selections
+	  echo "phpmyadmin phpmyadmin/app-password-confirm password $MySQL_Password" | debconf-set-selections
 	  echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | debconf-set-selections
-	Text_TITLE "• ${red}PHPMyAdmin настроен! •"
+	MKC_txt "Команда: Настройка: PHPMyAdmin ${red}Выполнена ${green}"
 
-	Text_INFO "     "
+	MKC_txt
 
-	Text_TITLE "• Подготовка: •"
-	Text_TITLE "• >> Устанавливаю пакеты: ${yellow}phpmyadmin"
+	MKC_txt "${blue}[INSTALL]:${yellow} phpmyadmin"
 	  sudo apt-get install -y phpmyadmin
-	Text_TITLE "• >> Выполнена команда установки пакета:${yellow} phpmyadmin"
+	MKC_txt "${blue}[COMPLECTED]:${yellow} phpmyadmin"
 
-	Text_INFO "     "
+	MKC_txt
 
-	Text_TITLE "• Настраиваю Apache сервер •"
+	MKC_txt "Настраиваю Apache сервер"
 	  STRING=$(apache2 -v | grep Apache/2.4)
-	Text_TITLE "• Apache настроен •"
+	MKC_txt "Apache настроен"
 
-	Text_INFO "     "
+	MKC_txt
 
-  Text_TITLE "• Вношу изменения в файл конфигурации сервера •"
+	MKC_txt "Вношу изменения в файл конфигурации сервера"
 	if [ "$STRING" = "" ]; then
 		FILE='/etc/apache2/conf.d/aiBash'
 		echo "<VirtualHost *:80>">$FILE
@@ -290,190 +377,206 @@ setup_server()
 		echo "CustomLog \${APACHE_LOG_DIR}/access.log combined">>$FILE
 		echo "</VirtualHost>">>$FILE
 	fi
-	Text_TITLE "• Конфигурация внесена •"
+	MKC_txt "Конфигурация внесена"
+	sleep 8
 
-	Text_INFO "     "
-
-	Text_TITLE "• Выполнение команд: •"
-	Text_n "•  >> a2enmod rewrite •"
-	  a2enmod rewrite
-	Text_n "•  >> a2enmod php*.* •"
-	  a2enmod php*.*
-	Text_n "•  >> /etc/init.d/apache2 restart •"
-	/etc/init.d/apache2 restart
-	Text_n "•  >> service apache2 restart •"
-	  service apache2 restart
-	Text_n "•  >> cd ~ •"
-    cd ~
-	Text_TITLE "• Выполнение команд завершено •"
-	sleep 3
-
-	Text_INFO "     "
-
-  Text_TITLE "• • Создаю, подключаю и очищаю каталог, где будет хранится сайт: ${red}$INSTALL_DIR${green} • •"
-	  mkdir $INSTALL_DIR/
-	  sudo chmod 777 /$INSTALL_DIR
-	  cd $INSTALL_DIR/
-	  rm -Rfv *
-	Text_TITLE "• Каталог создан •"
-
-	Text_INFO "     "
-
-  Text_TITLE "• • Теперь создаю тестовый файл index.php • •"
-    echo "<?php phpinfo(); ?>" > index.php
-    Text_TITLE "• • Выдаю права 777. Измените обязательно! • •"
-    sudo chmod 777 ./*
-  Text_n "•  Тестовый файл создан •"
-  sleep 3
-
-  Text_INFO "     "
-
-	Text_n "•  Возвращаемся в домашний каталог •"
-	  cd ~
-	Text_n "• Продолжаем... •"
-
-	Text_INFO "     "
-
-  Text_TITLE "${green}• • Задаю часовой пояс Москвы • •"
-	  Text_n "${green}•  >> ${yellow}Europe/Moscow ${green}в ${yellow}/etc/timezone ${green}•"
-	    echo "Europe/Moscow" > /etc/timezone
-	      dpkg-reconfigure tzdata -f noninteractive
-	    Text_n "${green}•  >> Update: ${yellow}/etc/php/*.*/cli/php.ini ${green}•"
-        sudo sed -i -r 's~^;date\.timezone =$~date.timezone = "Europe/Moscow"~' /etc/php/*.*/cli/php.ini
-	    Text_n "${green}•  >> Update: ${yellow}/etc/php/*.*/apache2/php.ini ${green}•"
-        sudo sed -i -r 's~^;date\.timezone =$~date.timezone = "Europe/Moscow"~' /etc/php/*.*/apache2/php.ini
-	  Text_INFO
-	Text_TITLE "${red}• ГОТОВО! •"
-	Text_INFO
-	sleep 5
-
-	Text_INFO "     "
-
-	Text_TITLE "• Обновляю пакеты репозиториев •"
-	sudo apt-get update -y
-	Text_TITLE "• Завершаю обновление репозиториев •"
-
-	Text_INFO "     "
-
-	Text_TITLE "• Перезапускаю модули Apache и MySQL •"
-	service apache2 restart
-	service mysql restart
-	Text_TITLE "• Команды перезапуска выполнены •"
-	sleep 5
+	MKC_txt
 
 	clear
-	Text_SEPARATOR
-	Text_INFO "${red}Пожалуйста, оцените работу скрипта! ${yellow}https://clck.ru/N9mux"
-	Text_INFO
-		Text_TITLE "${green}• • t.me/${red}MiKillCrafter ${green}• •"
-	  Text_TITLE "${green}• • ${blue}https://MKC-MKC.GitHub.IO"
-	  Text_SEPARATOR
-		Text_n "${red}Сайт установлен по этому пути:"
-    Text_n "${blue}$INSTALL_DIR"
-      Text_INFO
-        Text_n "${yellow}http://$DOMAIN/${red}phpmyadmin"
-      Text_INFO
-		Text_n "${red}Логин${green}: ${yellow}root"
-		Text_n "${red}Пароль${green}: ${yellow}$MYPASS"
-		Text_INFO
-		Text_SEPARATOR
-	Text_INFO
-	Text_TITLE "• Всё готово [All done]•"
-	  Text_INFO "1 – Установить бесплатный SSL [Install free SSL]"
-	  Text_INFO "2 – Меню [Menu]"
-	  Text_INFO "0 – Выход [Exit]"
-	Text_INFO
-	read -p "Введи 0 чтобы завершить: " case
-	case $case in
-	  1) installCertificate;;
-	  2) menu;;
-	  0) exit;;
-	esac
+	  MKC_txt "Выполнение команд:"
+	sleep 3
+
+	MKC_txt
+
+	MKC_txt ">> a2enmod rewrite"
+	a2enmod rewrite
+
+	MKC_txt
+
+	MKC_txt ">> /etc/init.d/apache2 restart"
+	/etc/init.d/apache2 restart
+
+	MKC_txt
+
+	MKC_txt ">> service apache2 restart"
+	service apache2 restart
+
+	MKC_txt
+
+	MKC_txt ">> systemctl restart apache2"
+	systemctl restart apache2
+
+	MKC_txt
+
+	MKC_txt ">> a2enmod php$phpVer"
+	a2enmod php$phpVer
+
+	MKC_txt
+
+	MKC_txt ">> cd ~"
+  cd ~
+
+  MKC_txt
+
+  MKC_txt "Выполнение команд завершено"
+  sleep 5
+
+  MKC_txt
+
+  MKC_txt "Создаю, подключаю и очищаю каталог, где будет хранится сайт: ${red}$INSTALL_DIR${green} "
+	  mkdir "$INSTALL_DIR"/
+	  sudo chmod 777 "$INSTALL_DIR"/
+	  cd "$INSTALL_DIR"/
+	  rm -Rfv *
+	MKC_txt "Каталог создан и подключен"
+	sleep 5
+
+	MKC_txt
+
+	MKC_txt "Теперь создаю тестовый файл index.php "
+    echo "<?php phpinfo(); ?>" > index.php
+    MKC_txt "Выдаю права 777. Измените обязательно! "
+    sudo chmod 777 ./*
+    MKC_txt "Тестовый файл создан"
+  sleep 5
+
+	MKC_txt
+
+	MKC_txt "Возвращаемся в домашний каталог"
+	cd ~
+
+	MKC_txt
+
+	MKC_txt "${green}Задаю часовой пояс серверу: ${yellow}Europe/Moscow"
+	  MKC_txt "${green} >> ${yellow}Europe/Moscow ${green}в ${yellow}/etc/timezone ${green}"
+	    echo "Europe/Moscow" > /etc/timezone
+	      dpkg-reconfigure tzdata -f noninteractive
+	    MKC_txt "${green} >> Update: ${yellow}/etc/php/$phpVer/cli/php.ini ${green}"
+        sudo sed -i -r 's~^;date\.timezone =$~date.timezone ="Europe/Moscow"~' /etc/php/$phpVer/cli/php.ini
+	    #MKC_txt "${green}  >> Update: ${yellow}/etc/php/$phpVer/apache2/php.ini ${green}"
+        #sudo sed -i -r 's~^;date\.timezone =$~date.timezone ="Europe/Moscow"~' /etc/php/$phpVer/apache2/php.ini
+	  MKC_txt
+	MKC_txt "${red}Часовой пояс установлен: Europe/Moscow"
+	sleep 5
+
+	MKC_txt
+
+	MKC_txt "Перезапускаю модули Apache2 и MySQL"
+	service apache2 restart
+	service mysql restart
+	MKC_txt "Команды перезапуска выполнены"
+	sleep 5
+
+	MKC_txt
+
+	install_complected
+}
+
+################################################################################################
+
+check_os_update() {
+  MKC_txt "Обновляем пакеты"
+    apt-get update -y
+    apt-get upgrade -y
+  MKC_txt "Завершаем обновление"
 }
 
 installCertificate()
 {
-	Text_TITLE "• Обновляю пакеты репозиториев •"
-	  apt-get update -y
-	Text_TITLE "• Завершаю обновление репозиториев •"
+	clear
+	  check_os_update
+	sleep 3
 
-	Text_TITLE "• Добавляю репозиторий universe •"
+	MKC_txt
+
+	MKC_txt "Добавляю репозиторий universe"
 	  add-apt-repository -y universe
-	Text_TITLE "• Репозиторий успешно добавлен •"
+	MKC_txt "Репозиторий успешно добавлен"
 
-	Text_TITLE "• Добавляю репозиторий certbot •"
+	MKC_txt
+
+	MKC_txt "Добавляю репозиторий certbot"
 	  sudo add-apt-repository -y ppa:certbot/certbot
-	Text_TITLE "• Репозиторий успешно добавлен •"
+	MKC_txt "Репозиторий успешно добавлен"
 
-	Text_TITLE "• Устанавливаю software-properties-common •"
-	  apt-get install -y software-properties-common
-	Text_TITLE "• Репозиторий успешно добавлен •"
+	MKC_txt
 
-	Text_TITLE "• Устанавливаю certbot && python-certbot-apache •"
+	MKC_txt "Устанавливаю certbot && python-certbot-apache"
 	  apt-get install -y certbot python-certbot-apache
-	Text_TITLE "• Репозиторий успешно добавлен •"
+	MKC_txt "Выполнено"
 
-	Text_TITLE "• Устанавливаем только сертификат для Apache •"
-	  sudo certbot certonly --webroot -w $INSTALL_DIR -d $DOMAIN -d www.$DOMAIN
-	Text_TITLE "• Сертификат установлен •"
+	MKC_txt
+
+	MKC_txt "Устанавливаем только сертификат для Apache"
+	  sudo certbot certonly --webroot -w "$INSTALL_DIR" -d "$DOMAIN" -d www."$DOMAIN"
+	MKC_txt "Сертификат установлен"
+
 	clear
 
-	Text_TITLE "• [Ручная установка №1]: Введите публичный Email для аккаунта ACME и пройдите опрос •"
-	Text_INFO "${red}НАПОМИНАНИЕ:"
-	Text_INFO "${red}Сайт установлен по этому пути: ${blue}$INSTALL_DIR"
-	Text_INFO "${red}Ваш адрес сайта: ${yellow}http://$DOMAIN"
+	MKC_txt "[Ручная установка №1]: Введите публичный Email для аккаунта ACME и пройдите опрос"
+	MKC_txt "${red}НАПОМИНАНИЕ:"
+	MKC_txt "${red}Сайт установлен по этому пути: ${blue}$INSTALL_DIR"
+	MKC_txt "${red}Ваш адрес сайта: ${yellow}http://$DOMAIN"
 	sleep 10
-	  sudo certbot certonly --standalone -d $DOMAIN -d www.$DOMAIN
-	  Text_INFO "Если всё прошло успешно, сертификат тут: /etc/letsencrypt/live/$DOMAIN/"
-	Text_TITLE "• [Ручная установка №1]: Завершена •"
+	  sudo certbot certonly --standalone -d "$DOMAIN" -d www."$DOMAIN"
+	  MKC_txt "Если всё прошло успешно, сертификат тут: /etc/letsencrypt/live/$DOMAIN/"
+	MKC_txt "[Ручная установка №1]: Завершена"
 
-	Text_TITLE "• Создаю сертификат •"
-	  Text_INFO "Введите цифру нужного домена или несколько цифр, разделённых запятой."
-	  Text_INFO "Утилита сама установит всё, что нужно, а затем спросит вас,"
-	  Text_INFO "нужно ли перенаправлять http-трафик на https:"
+	MKC_txt
+
+	MKC_txt "Создаю сертификат"
+	  MKC_txt "Введите цифру нужного домена или несколько цифр, разделённых запятой."
+	  MKC_txt "Утилита сама установит всё, что нужно, а затем спросит вас,"
+	  MKC_txt "нужно ли перенаправлять http-трафик на https:"
 	  sleep 10
 	  sudo certbot run --apache
-	Text_TITLE "• Сертификат создан •"
+	MKC_txt "Сертификат создан"
 
-	Text_TITLE "• Обновляю сертификат •"
-	  sudo certbot certonly --apache -n -d $DOMAIN -d www.$DOMAIN
-	Text_TITLE "• Обновление заверено •"
+	MKC_txt
 
-	Text_TITLE "${green}• Выполнение: ${blue}certbot renew --dry-run ${green}запушено: •"
+	MKC_txt "Обновляю сертификат"
+	  sudo certbot certonly --apache -n -d "$DOMAIN" -d www."$DOMAIN"
+	MKC_txt "Обновление завершено"
+
+	MKC_txt
+
+	MKC_txt "${green} Выполнение: ${blue}certbot renew --dry-run ${green}запушено:"
 	  sudo certbot renew --dry-run
-	Text_TITLE "${green}• Выполнение: ${blue}certbot renew --dry-run ${green}завершено •"
-	clear
-	Text_INFO "${green}Installation complected"
+	MKC_txt "${green} Выполнение: ${blue}certbot renew --dry-run ${green}завершено"
+
+	MKC_txt
+
+	MKC_txt "${green}Installation complected"
+
 	menu
 }
 
 updateCertificate()
 {
-  Text_SEPARATOR
-	Text_TITLE "• Update cert only •"
-	  sudo certbot certonly --apache -n -d $DOMAIN -d www.$DOMAIN
-	  sudo certbot renew
-	  #sudo certbot renew --dry-run
-	Text_SEPARATOR
-	clear
-	Text_TITLE "• Обновление заверено •"
+  clear
+
+	MKC_txt "Update cert only"
+	  sudo certbot certonly --apache -n -d "$DOMAIN" -d www."$DOMAIN"
+	  sudo certbot renew #--dry-run
+	MKC_txt
+
+	MKC_txt "Обновление завершено"
 	menu
 }
 
 menu()
 {
-		Text_SEPARATOR
-		Text_INFO "${red}Пожалуйста, оцените работу скрипта!"
-		Text_INFO "• ${blue}Menu:"
-		  Text_INFO "${green}• - 1 – Настроить сервер [Setup server]"
-		  Text_INFO "${green}• - 2 – ${red}[beta] ${green}Установить бесплатный SSL [Install free SSL]"
-		  Text_INFO "${green}• - 3 – ${red}[beta] ${green}Обновить истёкший SSL сертификат [Update an expired SSL certificate]"
-		  Text_INFO "${green}• - 4 – Вернутся чтобы изменить IP-адрес или папку для сайта [Back for change IP or folder for the site]"
-		  Text_INFO
-		  Text_INFO "${red}• - 0 – Выход [Exit]"
-		Text_SEPARATOR
-		Text_INFO "${blue}What u choose?: "
-		read -p "${blue}Что ты выбираешь?: " case
+		MKC_txt
+		MKC_txt "${red}Пожалуйста, оцените работу скрипта!"
+		MKC_txt "${blue}Menu:"
+		  MKC_txt "${green} - 1 – Настроить сервер [Setup server]"
+		  MKC_txt "${green} - 2 – ${red}[beta] ${green}Установить бесплатный SSL {НЕ ПРОТЕСТИРОВАНО} [Install free SSL {NOT TESTED}]"
+		  MKC_txt "${green} - 3 – ${red}[beta] ${green}Обновить истёкший SSL сертификат {НЕ ПРОТЕСТИРОВАНО} [Update an expired SSL certificate {NOT TESTED}]"
+		  MKC_txt "${green} - 4 – Вернутся и изменить IP-адрес или папку для сайта [Back & replace IP or folder for the site]"
+		  MKC_txt
+		  MKC_txt "${red} - 0 – Выход [Exit]"
+		MKC_txt
+		read -p"${blue}Введи номер [Input number]: " case
 		case $case in
 			1) setup_server;;
 			2) installCertificate;;
@@ -486,16 +589,16 @@ menu()
 InputArrayData()
 {
 	clear
-	Text_INFO "${blue}[Инфо]${green}: Введите путь к папке с сайтом"
-	Text_INFO "${blue}[INFO]${green}: Enter the path to the directory with the site"
-	Text_INFO
-	Text_INFO "${green}• (Пример | Example): ${yellow}/var/www ${green}"
-	Text_INFO
-	read -p "${green}Введи путь до сайта:${yellow} " INSTALL_DIR
+	MKC_txt "${blue}[Инфо]${green}: Введите путь к папке с сайтом"
+	MKC_txt "${blue}[INFO]${green}: Enter the path to the directory with the site"
+	MKC_txt
+	MKC_txt "${green} (Пример | Example): ${yellow}/var/www ${green}"
+	MKC_txt
+	read -p "${green}Введи путь до сайта: ${yellow}" INSTALL_DIR
 	clear
 	sudo ifconfig
-	Text_INFO "${green}Enter ${red}domain ${green}or ${red}IP:"
-	read -p "${green}Введи ${red}домен ${green}или ${red}IP:${green} " DOMAIN
+	MKC_txt "${green}Enter ${red}domain ${green}or ${red}IP: "
+	read -p "${green}Введи ${red}домен ${green}или ${red}IP: ${green}" DOMAIN
 	clear
 	menu
 }
@@ -504,22 +607,19 @@ start()
 {
 	clear
 	if [ "$USER" = "root" ]; then
-		Text_SEPARATOR
-		Text_INFO
-		Text_INFO "• [Apache2] ${blue}Ты точно хочешь запустить настройку Ubuntu сервера?"
-		Text_INFO "• [Apache2] ${blue}Are you sure you want to start setting up the Ubuntu server?"
-		Text_INFO
-		  Text_INFO "${green}• - 1 - ДА – YES ✔ •"
-		  Text_INFO "${red}• - 0 - НЕT – NO ✔ •"
-		Text_INFO
-		Text_SEPARATOR
-		Text_INFO "${blue}Want to continue? (Input: ${green}1 or ${red}0${blue}): "
+		MKC_txt "${blue}Ты точно хочешь запустить настройку Linux для Apache2, MySQL, PHP$phpVer?"
+		MKC_txt "${blue}Are you sure u want to start setup the Linux for Apache2, MySQL, PHP$phpVer?"
+		MKC_txt
+		  MKC_txt "${green} - 1 - ДА – YES ✔"
+		  MKC_txt "${red} - 0 - НЕT – NO ✔"
+		MKC_txt
+		MKC_txt "${blue}Want to continue? (Input: ${green}1 or ${red}0${blue}):"
 		read -p "${blue}Хотите продолжить? (Введи: ${green}1 или ${red}0${blue}): " case
 		case $case in
 			1) InputArrayData;;
 			0) exit;;
 		esac; clear
-	else clear; Text_INFO "${red}You are not a root | Вы не root"; fi
+	else clear; MKC_txt "${red}You are not a root | Вы не root"; fi
 }
 
 start
