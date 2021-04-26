@@ -58,6 +58,16 @@ setup_server() {
 
   MKC_txt
 
+  MKC_txt ">> a2dismod php$phpVer"
+	a2dismod php$phpVer
+
+	MKC_txt
+
+  MKC_txt ">> service php$phpVer stop"
+	service php$phpVer stop
+
+  MKC_txt
+
 	MKC_txt ">> /etc/init.d/apache2 stop"
 	/etc/init.d/apache2 stop
 
@@ -72,16 +82,6 @@ setup_server() {
 	systemctl stop apache2
 
 	MKC_txt
-
-  MKC_txt ">> a2dismod php$phpVer"
-	a2dismod php$phpVer
-
-	MKC_txt
-
-  MKC_txt ">> service php$phpVer stop"
-	service php$phpVer stop
-
-  MKC_txt
 
   sleep 5
     check_os_update
