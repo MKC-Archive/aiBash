@@ -424,7 +424,7 @@ setup_server() {
   MKC_txt
 
   MKC_txt "Создаю, подключаю и очищаю каталог, где будет хранится сайт: ${red}$INSTALL_DIR${green} "
-	  mkdir "$INSTALL_DIR"/
+	  mkdir -p "$INSTALL_DIR"/
 	  sudo chmod 777 "$INSTALL_DIR"/
 	  cd "$INSTALL_DIR"/
 	  rm -Rfv *
