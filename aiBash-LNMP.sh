@@ -24,7 +24,6 @@ MKC_txt() {
 install_complected() {
   clear
   MKC_txt "${red}Пожалуйста, оцените работу скрипта!"
-	MKC_txt "${red}Пожалуйста, попробуйте безлимитный хостинг! ${yellow}https://clck.ru/SQZXC"
 	MKC_txt "${red}Очень дешёвые домены по одной цене с продлением! ${yellow}https://clck.ru/SQZXC"
 	MKC_txt "${red}Вечный хостинг PHP+MySQL! ${yellow}https://clck.ru/SQZXC"
 	MKC_txt
