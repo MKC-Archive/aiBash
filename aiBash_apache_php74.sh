@@ -576,7 +576,7 @@ menu()
 		  MKC_txt
 		  MKC_txt "${red} - 0 – Выход [Exit]"
 		MKC_txt
-		read -p"${blue}Введи номер [Input number]: " case
+		read -p "${blue}Введи номер [Input number]: " case
 		case $case in
 			1) setup_server;;
 			2) installCertificate;;
