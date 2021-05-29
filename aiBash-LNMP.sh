@@ -72,18 +72,18 @@ region() {
 	    echo "$region_zone" > /etc/timezone
 	    dpkg-reconfigure tzdata -f noninteractive
 	    MKC_txt "${green} >> Update: ${yellow}/etc/php/$phpVer/fpm/php.ini ${green}"
-      sudo sed -i -r "s~^;date\.timezone =$~date.timezone =""$region_zone""~" /etc/php/$phpVer/fpm/php.ini
+      sed -i -r "s~^;date\.timezone =$~date.timezone =""$region_zone""~" /etc/php/$phpVer/fpm/php.ini
 
 	  MKC_txt
 	MKC_txt "${red}Часовой пояс установлен: $region_zone"
-	sleep 10
+	sleep 5
 menu
 }
 
 kp_site() {
   clear
-  sudo apt-get install -y net-tools
-  sudo ifconfig
+  apt-get install -y net-tools
+  ifconfig
 
   MKC_txt
     MKC_txt "${green}Мне нужно знать адрес твоего сервера"
@@ -146,7 +146,7 @@ kp_site() {
 
 	MKC_txt "Создаю, подключаю и очищаю каталог, где будет хранится сайт:${blue} $add_site_path/$conf_file_name"
 	  mkdir -p "$add_site_path/$conf_file_name"
-	  sudo chmod 777 "$add_site_path/$conf_file_name"
+	  chmod 777 "$add_site_path/$conf_file_name"
 	  cd "$add_site_path/$conf_file_name"
 	  rm -Rfv *
 	MKC_txt "Каталог создан и подключен"
@@ -157,7 +157,7 @@ kp_site() {
 	MKC_txt "Теперь создаю тестовый файл index.php"
     echo "This is your new web-site: $add_site_addr:$listen_port <?php phpinfo(); ?>" >> index.php
     MKC_txt "Выдаю права 777. Измените обязательно!"
-    sudo chmod 777 ./*
+    chmod 777 ./*
     MKC_txt "Тестовый файл создан"
     MKC_txt
   sleep 5
@@ -168,12 +168,12 @@ kp_site() {
   MKC_txt
 
   MKC_txt "Перезапускаю модули NGINX"
-	  sudo nginx -s reload
+	  nginx -s reload
 	MKC_txt "Команды перезапуска служб выполнены"
 
   MKC_txt
     MKC_txt ">> nginx -t"
-	  sudo nginx -t
+	  nginx -t
 	MKC_txt "Done"
 
 	sleep 5
@@ -186,7 +186,7 @@ kp_site() {
 	MKC_txt
 	MKC_txt "Всё готово [All done]"
 	  MKC_txt "1 – Меню [Menu]"
-	  MKC_txt "2 – Смена часового пояса [Changing Time Zone]"
+	  MKC_txt "2 – Установить часовой пояс [Set Time Zone]"
 	  MKC_txt "3 – Добавить ещё один сайт [Add one more site]"
 	  MKC_txt "0 – Выход [Exit]"
 	MKC_txt
@@ -246,35 +246,35 @@ setup_server() {
   MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} ssh"
-		sudo apt-get install -y ssh
+		apt-get install -y ssh
 		sleep 2
 	MKC_txt "${blue}[COMPLECTED]:${green} ssh"
 
 	MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} mc"
-		sudo apt-get install -y mc
+		apt-get install -y mc
 		sleep 2
 	MKC_txt "${blue}[COMPLECTED]:${green} mc"
 
 	MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} zip"
-		sudo apt-get install -y zip
+		apt-get install -y zip
 		sleep 2
 	MKC_txt "${blue}[COMPLECTED]:${green} zip"
 
 	MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} unzip"
-		sudo apt-get install -y unzip
+		apt-get install -y unzip
 		sleep 2
 	MKC_txt "${blue}[COMPLECTED]:${green} unzip"
 
 	MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} htop"
-		sudo apt-get install -y htop
+		apt-get install -y htop
 		sleep 2
 	MKC_txt "${blue}[COMPLECTED]:${green} htop"
 
@@ -317,7 +317,7 @@ setup_server() {
 	MKC_txt
 
 	MKC_txt "Устанавливаю репозитории phpmyadmin"
-    sudo add-apt-repository -y ppa:phpmyadmin/ppa
+    add-apt-repository -y ppa:phpmyadmin/ppa
   MKC_txt "Репозитории добавлены"
   sleep 3
 
@@ -330,31 +330,31 @@ setup_server() {
   MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} nginx"
-	  sudo apt-get install -y nginx
+	  apt-get install -y nginx
 	MKC_txt "${blue}[COMPLECTED]:${green} nginx"
 
   MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} php$phpVer-fpm"
-	  sudo apt-get install -y php$phpVer-fpm
+	  apt-get install -y php$phpVer-fpm
 	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-fpm"
 
   MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} php$phpVer-mysql"
-	  sudo apt-get install -y php$phpVer-mysql
+	  apt-get install -y php$phpVer-mysql
 	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-mysql"
 
   MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} php$phpVer-mbstring"
-	  sudo apt-get install -y php$phpVer-mbstring
+	  apt-get install -y php$phpVer-mbstring
 	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-mbstring"
 
   MKC_txt
 
   MKC_txt "${blue}[INSTALL]:${green} php$phpVer-gettext"
-	  sudo apt-get install -y php$phpVer-gettext
+	  apt-get install -y php$phpVer-gettext
 	MKC_txt "${blue}[COMPLECTED]:${green} php$phpVer-gettext"
 
   MKC_txt
@@ -399,37 +399,37 @@ setup_server() {
 	MKC_txt
 
 	MKC_txt "${blue}[INSTALL]:${yellow} phpmyadmin"
-	  sudo apt-get install -y phpmyadmin
+	  apt-get install -y phpmyadmin
 	MKC_txt "${blue}[COMPLECTED]:${yellow} phpmyadmin"
 
 	MKC_txt
 
 	MKC_txt "Всё ещё работаю..."
 	  MKC_txt
-	  MKC_txt ">> sudo mkdir -p /etc/nginx/sites-available"
+	  MKC_txt ">> mkdir -p /etc/nginx/sites-available"
 	  MKC_txt
-	  sudo mkdir -p /etc/nginx/sites-available
+	  mkdir -p /etc/nginx/sites-available
 	MKC_txt
 	sleep 3
 
 	MKC_txt "Отчёт: ufw app list"
-	  sudo ufw app list
+	  ufw app list
 	MKC_txt
 	sleep 5
 
 	MKC_txt "Разрешаю внешнее соединение: ufw allow 'Nginx HTTP'"
-	  sudo ufw allow 'Nginx HTTP'
+	  ufw allow 'Nginx HTTP'
 	MKC_txt
 	sleep 3
 
-	MKC_txt "Отчёт: sudo ufw status"
-	  sudo ufw status
+	MKC_txt "Отчёт: ufw status"
+	  ufw status
 	MKC_txt
 	sleep 5
 
 	MKC_txt "Удаляю стандартный файл настроек: default"
-	  sudo rm -rf /etc/nginx/sites-available/default
-	  sudo rm -rf /etc/nginx/sites-enabled/default
+	  rm -rf /etc/nginx/sites-available/default
+	  rm -rf /etc/nginx/sites-enabled/default
 	MKC_txt
 	sleep 3
 
@@ -486,7 +486,7 @@ setup_server() {
 
   cd ~
 	  MKC_txt "Создаю симлинк файла"
-	  sudo ln -s /etc/nginx/sites-available/phpmyadmin.conf /etc/nginx/sites-enabled/
+	  ln -s /etc/nginx/sites-available/phpmyadmin.conf /etc/nginx/sites-enabled/
 	sleep 3
 
 	MKC_txt ">> cd ~"
@@ -495,7 +495,7 @@ setup_server() {
 
   MKC_txt "Создаю, подключаю и очищаю каталог, где будет хранится сайт: ${red}$INSTALL_DIR${green}"
 	  mkdir -p "$INSTALL_DIR/default"
-	  sudo chmod 777 "$INSTALL_DIR/default"
+	  chmod 777 "$INSTALL_DIR/default"
 	  cd "$INSTALL_DIR/default"
 	  rm -Rfv *
 	MKC_txt "Каталог создан и подключен"
@@ -506,7 +506,7 @@ setup_server() {
 	MKC_txt "Теперь создаю тестовый файл index.php"
     echo "This is an default page <?php phpinfo(); ?>" >> index.php
     MKC_txt "Выдаю права 777. Измените обязательно!"
-    sudo chmod 777 ./*
+    chmod 777 ./*
     MKC_txt "Тестовый файл создан"
   sleep 5
 
@@ -549,9 +549,9 @@ InputArrayData()
 	MKC_txt "${green} (Пример | Example): ${yellow}/var/www ${green}"
 	MKC_txt
 	read -p "${green}Введи путь до сайта: ${yellow}" INSTALL_DIR
-	sudo apt-get install -y net-tools
+	apt-get install -y net-tools
 	clear
-	sudo ifconfig
+	ifconfig
 	MKC_txt "${green}Enter ${red}domain ${green}or ${red}IP:"
 	read -p "${green}Введи ${red}домен ${green}или ${red}IP: ${green}" DOMAIN
 	clear
@@ -580,21 +580,21 @@ menu()
 
 start()
 {
-	clear
-	if [ "$USER" = "root" ]; then
-		MKC_txt "${blue}Ты точно хочешь запустить настройку Linux для Nginx, MySQL, PHP$phpVer?"
-		MKC_txt "${blue}Are you sure u want to start setup the Linux for Nginx, MySQL, PHP$phpVer?"
-		MKC_txt
-		  MKC_txt "${green} - 1 - ДА – YES ✔"
-		  MKC_txt "${red} - 0 - НЕT – NO ✔"
-		MKC_txt
+	if [ "$(id -u)" -ne 0 ]; then
+    clear; MKC_txt "${red}You are not a root | Вы не root"; else clear
+    MKC_txt "${blue}Ты точно хочешь запустить настройку Linux для Nginx, MySQL, PHP$phpVer?"
+    MKC_txt "${blue}Are you sure u want to start setup the Linux for Nginx, MySQL, PHP$phpVer?"
+        MKC_txt
+        MKC_txt "${green} - 1 - ДА – YES ✔"
+        MKC_txt "${red} - 0 - НЕT – NO ✔"
+    MKC_txt
 		MKC_txt "${blue}Want to continue? (Input: ${green}1 or ${red}0${blue}):"
 		read -p "${blue}Хотите продолжить? (Введи: ${green}1 или ${red}0${blue}): " case
-		case $case in
-			1) menu;;
-			0) exit;;
-		esac; clear
-	else clear; MKC_txt "${red}You are not a root | Вы не root"; fi
+    case $case in
+        1) menu;;
+        0) exit;;
+        esac;
+        fi
 }
 
 start
